@@ -11,7 +11,7 @@ const {
   ANTHROPIC_API_KEY,
   OPENAI_MODEL = "gpt-6.2-astra",
   ANTHROPIC_MODEL = "claude-haiku-5-5",
-  AI_DEFAULT_PROVIDER = "openai",
+  AI_DEFAULT_PROVIDER = (process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY) ? "claude" : "openai",
   AI_FALLBACK_ENABLED = "true",
   PUBLIC_BASE_URL,
   AMOUNT = "50",
@@ -54,14 +54,28 @@ app.use(express.json({
   limit: "100kb",
   verify: (req, _res, buf) => { req.rawBody = buf; }
 }));
-app.use(express.static(path.join(__dirname, "public"), {
-  maxAge: "1h",
-  setHeaders: (res, file) => {
-    if (file.endsWith("sw.js") || file.endsWith("index.html") || file.endsWith("app.html")) {
-      res.setHeader("Cache-Control", "no-cache");
+const PUBLIC_DIR = fs.existsSync(path.join(__dirname, "public", "index.html"))
+  ? path.join(__dirname, "public")
+  : __dirname;
+const SITE_FILES = new Set(["index.html", "app.html", "sw.js", "manifest.webmanifest", "icon-192.png", "icon-512.png"]);
+if (PUBLIC_DIR === __dirname) {
+  // Flat upload fallback: only these website files are ever served, never server.js or package.json.
+  app.use((req, res, next) => {
+    const name = req.path === "/" ? "index.html" : req.path.replace(/^\//, "");
+    if (!SITE_FILES.has(name)) return next();
+    if (name === "sw.js" || name.endsWith(".html")) res.setHeader("Cache-Control", "no-cache");
+    res.sendFile(path.join(__dirname, name));
+  });
+} else {
+  app.use(express.static(PUBLIC_DIR, {
+    maxAge: "1h",
+    setHeaders: (res, file) => {
+      if (file.endsWith("sw.js") || file.endsWith("index.html") || file.endsWith("app.html")) {
+        res.setHeader("Cache-Control", "no-cache");
+      }
     }
-  }
-}));
+  }));
+}
 
 function availableProviders() {
   return { openai: Boolean(OPENAI_API_KEY), claude: Boolean(ANTHROPIC_API_KEY) };
