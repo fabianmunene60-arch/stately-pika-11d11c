@@ -1,57 +1,230 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#32108f">
-  <title>StudyBuddy | Your AI Learning Partner</title>
-  <meta name="description" content="StudyBuddy helps university, high-school and junior-secondary students learn, revise and prepare with an AI study partner.">
-  <meta property="og:title" content="StudyBuddy — Learn smarter. Achieve more.">
-  <meta property="og:description" content="AI-powered learning support for every student, everywhere.">
-  <meta property="og:image" content="/assets/students-study.webp">
-  <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<title>StudyBuddy – Your AI learning companion</title>
+<meta name="description" content="Learn with AI tutoring, assignment guidance, summaries and revision support.">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f5f7ff;--card:#fff;--ink:#1a2040;--mute:#586080;--line:#e0e5f5;--brand:#4f46e5;--brand2:#06b6d4;--bad:#b91c1c;--ok:#15803d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1120;--card:#171b30;--ink:#eef0ff;--mute:#a0a8c8;--line:#292f4c;--bad:#f87171;--ok:#4ade80}}
+:root[data-theme="dark"]{--bg:#0e1120;--card:#171b30;--ink:#eef0ff;--mute:#a0a8c8;--line:#292f4c;--bad:#f87171;--ok:#4ade80}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 18px}
+.top{background:linear-gradient(135deg,#4f46e5,#7c3aed 55%,#06b6d4 120%);color:#fff}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.logo{font-weight:800;font-size:21px}
+header a{color:rgba(255,255,255,.88);text-decoration:none;font-size:14px;margin-left:14px}
+.hero{padding:16px 0 40px}
+h1{font-size:clamp(28px,6vw,44px);line-height:1.12;margin:0 0 12px;font-weight:800}
+h1 span{color:#fde68a}
+.lead{font-size:18px;opacity:.93;margin:0 0 20px;max-width:560px}
+.btn{display:inline-block;padding:13px 22px;border-radius:12px;border:0;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.p{background:#fff;color:#4f46e5}
+.btn.main{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;width:100%;margin-top:14px}
+.btn.alt{background:none;color:var(--brand);border:1px solid var(--line)}
+.btn:disabled{opacity:.6;cursor:default}
+section{padding:22px 0}
+h2{font-size:25px;margin:0 0 6px}
+.sub{color:var(--mute);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sbj{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 8px;text-align:center;font:inherit;color:var(--ink);cursor:pointer;font-weight:600}
+.sbj span{display:block;font-size:30px;margin-bottom:4px}
+.sbj:hover,.sbj.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand) inset}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
+textarea{min-height:120px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.price{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:2px 12px;font-size:13px;color:var(--mute)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.step b{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;margin-bottom:6px}
+.out{white-space:pre-wrap;word-wrap:break-word}
+.msg{font-size:14px;margin-top:10px}.bad{color:var(--bad)}.ok{color:var(--ok)}
+.soon{font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mute)}
+.hide{display:none}.bub{padding:10px 12px;border-radius:12px;margin:8px 0;white-space:pre-wrap;word-wrap:break-word}.bub.u{background:var(--brand);color:#fff;margin-left:18%}.bub.a{background:var(--bg);border:1px solid var(--line);margin-right:10%}.row2{display:flex;gap:8px;margin-top:10px}
+footer{border-top:1px solid var(--line);padding:20px 0 34px;margin-top:24px;color:var(--mute);font-size:14px;text-align:center}
+a{color:var(--brand)}
+</style>
 </head>
 <body>
-<div class="announcement"><span>🌍 Learning without limits</span><span>For University • High School • Junior Secondary</span><a href="mailto:fabianmunene60@gmail.com">Need help? Contact us ↗</a></div>
-<header class="topbar"><a class="brand" href="#home"><span class="brand-mark">✦</span><span>StudyBuddy<small>LEARN SMARTER. ACHIEVE MORE.</small></span></a>
-  <nav><a href="#home">Home</a><a href="#assistant">AI Tutor</a><a href="#features">Study tools</a><a href="#pricing">Premium</a><a href="#hopebridge">HopeBridge</a></nav>
-  <div class="nav-actions"><button class="btn btn-ghost" id="loginOpen">Log in</button><button class="btn btn-primary" id="signupOpen">Join for free <span>↗</span></button></div>
-  <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
-</header>
-<main>
-<section class="hero" id="home">
-  <div class="hero-copy"><div class="eyebrow"><span class="pulse"></span> YOUR SMART LEARNING COMPANION</div>
-    <h1>Study smarter.<br><span>Go further.</span></h1>
-    <p class="hero-lead">A better way to learn is right here. Get AI-powered study support, assignment guidance, revision tools and a plan that keeps you moving — from junior secondary to university.</p>
-    <div class="hero-ctas"><button class="btn btn-primary btn-lg" id="heroSignup">🚀 Start learning free</button><a class="btn btn-outline btn-lg" href="#assistant">Meet your AI tutor ↗</a></div>
-    <div class="hero-proof"><span>✓ Easy to use</span><span>✓ Works on your phone</span><span>✓ Made for every learner</span></div>
-    <div class="hero-price"><span class="crown">♛</span><div><b>Premium from KSh 50 / week</b><small>More room to ask, practise and grow</small></div><a href="#pricing">Explore ↗</a></div>
+<div class="top"><div class="wrap">
+  <header><div class="logo">📚 StudyBuddy</div>
+    <nav><a href="#start">Get help</a><a href="#ask">Ask AI</a><a href="#how">How it works</a><a href="#policies">Policies</a><a href="#contact">Contact</a></nav></header>
+  <div class="hero">
+    <h1>Stuck on an assignment? <span>Get unstuck in minutes.</span></h1>
+    <p class="lead">Pick your subject, pay KSh 50 and get step-by-step help that explains the working.</p>
+    <a class="btn p" href="#start">Choose your subject</a>
   </div>
-  <div class="hero-visual"><img src="/assets/students-study.webp" alt="Students collaborating on their studies in a modern library"><div class="visual-label"><span>✦</span><div><b>Your next breakthrough starts here</b><small>Learn • Practise • Achieve</small></div></div><div class="visual-sticker">AI POWERED<br><b>STUDY SUPPORT</b></div></div>
-</section>
-<section class="audience-strip"><span>BUILT FOR EVERY LEARNER</span><b>🎓 University</b><b>📚 High School</b><b>✏️ Junior Secondary</b><b>🌍 Self-directed learning</b></section>
-<section class="ticker"><span>UNIVERSITY</span><i>✦</i><span>HIGH SCHOOL</span><i>✦</i><span>JUNIOR SECONDARY</span><i>✦</i><span>SELF-DIRECTED LEARNERS</span><i>✦</i><span>LEARN WITHOUT LIMITS</span></section>
-<section class="section" id="features"><div class="section-head"><div class="eyebrow">ONE PLATFORM. MANY POSSIBILITIES.</div><h2>One learning space.<br><span>More ways to grow.</span></h2><p>Whether you're preparing for an exam, working on an assignment or exploring something new, your learning space is ready.</p></div>
-<div class="feature-grid">
-  <article class="feature-card feature-purple"><div class="feature-icon">✧</div><span class="tag">YOUR AI LEARNING PARTNER</span><h3>AI Study Assistant</h3><p>Ask questions in everyday language. Get clear explanations, examples and step-by-step guidance when a topic feels difficult.</p><a href="#assistant">Meet your AI tutor ↗</a><div class="decor decor-chat">“Can you explain this simply?”</div></article>
-  <article class="feature-card feature-blue"><div class="feature-icon">▤</div><span class="tag">WORK WITH CONFIDENCE</span><h3>Assignment Support</h3><p>Break down questions, understand instructions, organise your ideas and learn how to build stronger answers.</p><a href="#assistant">Get assignment help ↗</a><div class="decor decor-check">✓ Understand<br>✓ Plan<br>✓ Improve</div></article>
-  <article class="feature-card feature-orange"><div class="feature-icon">◷</div><span class="tag">PREPARE WITH PURPOSE</span><h3>Revision & Practice</h3><p>Revise key concepts, generate practice questions and test your understanding before the big day.</p><a href="#assistant">Start revising ↗</a><div class="decor decor-score">QUIZ<br><b>01 / 10</b></div></article>
-  <article class="feature-card feature-green"><div class="feature-icon">▦</div><span class="tag">MAKE TIME COUNT</span><h3>Study Planning</h3><p>Turn big academic goals into manageable study sessions and build a routine you can actually follow.</p><a href="#how">Build your routine ↗</a><div class="decor decor-calendar">MON&nbsp; TUE&nbsp; WED<br>✓ &nbsp; ◦ &nbsp; ✓</div></article>
-</div></section>
-<section class="assistant-section" id="assistant"><div class="assistant-copy"><div class="eyebrow">YOUR AI LEARNING PARTNER</div><h2>Questions welcome.<br><span>Curiosity encouraged.</span></h2><p>Ask StudyBuddy to explain a difficult topic, walk you through an assignment, create revision questions or help you plan your next study session. The goal is to help you understand — not just copy answers.</p><ul class="check-list"><li>Explanations matched to your learning level</li><li>Step-by-step help with tricky questions</li><li>Revision ideas, examples and practice</li><li>Available on your phone, tablet or computer</li></ul><div class="level-note">Choose your level in the AI tutor to get explanations that suit you.</div><button class="btn btn-primary" id="assistantSignup" type="button">Create a free account ↗</button></div>
-<div class="live-chat" id="liveChat"><div class="chat-head"><div class="bot-avatar">✦</div><div><b>StudyBuddy AI Tutor</b><small><span class="online"></span> Learning assistant</small></div><span class="chat-pill">AI POWERED</span></div><div class="chat-tools"><label for="studentLevel">My learning level</label><select id="studentLevel"><option value="junior secondary">Junior secondary</option><option value="high school">High school</option><option value="university" selected>University</option><option value="general learner">General learner</option></select><button type="button" id="clearChat" class="clear-chat">Clear</button></div><div class="chat-body" id="chatBody" aria-live="polite"><div class="bubble bot">Hello! 👋 I'm your StudyBuddy tutor. What topic are we exploring today?</div></div><form class="chat-compose" id="chatForm"><textarea id="chatQuestion" rows="1" maxlength="3000" placeholder="Ask a question about your studies…" required></textarea><button type="submit" id="chatSend" aria-label="Send question">➤</button></form><p class="chat-hint" id="chatHint">Log in to start a personal AI study session. AI usage may be subject to fair-use limits.</p></div></section>
-<section class="how-section" id="how"><div class="section-head"><div class="eyebrow">GET STARTED IN MINUTES</div><h2>Your learning journey,<br><span>made simpler.</span></h2></div><div class="steps"><div class="step"><div class="step-num">01</div><div class="step-icon">♙</div><h3>Create your account</h3><p>Register with your name, email and phone number to create your personal learning space.</p></div><div class="step"><div class="step-num">02</div><div class="step-icon">✧</div><h3>Choose your goal</h3><p>Ask the AI, get assignment guidance, revise a topic or organise your study time.</p></div><div class="step"><div class="step-num">03</div><div class="step-icon">↗</div><h3>Keep growing</h3><p>Build confidence through consistent practice and make progress one session at a time.</p></div></div></section>
-<section class="install-banner"><div><div class="eyebrow">YOUR STUDY SPACE, WHEREVER YOU GO</div><h2>Take StudyBuddy<br>with you.</h2><p>Install StudyBuddy on your phone or computer and open your learning space straight from your home screen — no app-store search required.</p><button class="btn btn-light" id="installBtn">＋ Install StudyBuddy</button><small id="installHelp">Android: tap Install. iPhone: Safari → Share → Add to Home Screen.</small></div><div class="phone-mock"><div class="phone-screen"><div class="phone-island"></div><div class="phone-logo">✦</div><h3>StudyBuddy</h3><p>Learn smarter.<br>Achieve more.</p><div class="phone-apps"><i>✧</i><i>▤</i><i>◷</i></div></div></div></section>
-<section class="pricing-section" id="pricing"><div class="section-head"><div class="eyebrow">STUDENT-FRIENDLY BY DESIGN</div><h2>Big support.<br><span>Small price.</span></h2><p>Start for free, then unlock more AI-powered support when you're ready.</p></div><div class="pricing-wrap"><article class="price-card"><span class="tag">GET STARTED</span><h3>Free</h3><div class="price">KSh 0 <small>/ always</small></div><p>Explore the StudyBuddy learning experience.</p><ul><li>Account and learning profile</li><li>Study tips and learning resources</li><li>Limited AI access (when enabled)</li><li>Installable web app</li></ul><button class="btn btn-outline full" id="freeSignup">Create free account</button></article><article class="price-card premium"><div class="popular">STUDENT FAVOURITE</div><span class="tag">UNLOCK MORE</span><h3>Premium</h3><div class="price">KSh 50 <small>/ week</small></div><p>Unlock more AI-powered learning support for just KSh 50 every 7 days.</p><ul><li>Expanded AI study assistance</li><li>Detailed assignment guidance</li><li>Revision and practice support</li><li>Priority access to premium features</li><li>Pay securely through Paystack</li><li>Weekly access for 7 days after successful payment</li></ul><button class="btn btn-primary full" id="premiumBtn">Get Premium — KSh 50</button><small>Secure checkout. Weekly renewal is manual; no automatic M-Pesa charge.</small></article></div></section>
-<section class="hope-section" id="hopebridge"><div class="hope-photo"><img src="/assets/students-study.webp" alt="Students learning together"><div class="hope-photo-caption">EDUCATION OPENS DOORS</div></div><div class="hope-copy"><div class="eyebrow">A BRIDGE TO A BRIGHTER FUTURE</div><h2>Hope grows when<br><span>we lift each other.</span></h2><p>HopeBridge Africa Foundation is an initiative focused on supporting disadvantaged students and young people through education, mentorship, skills development and community action.</p><div class="hope-points"><span>♡ Student support</span><span>✦ Youth mentorship</span><span>✦ Community empowerment</span></div><div class="donate-panel"><div class="donate-heading"><span>💜</span><div><b>Be part of the bridge</b><small>Your generosity can help create opportunities.</small></div></div><div class="donate-number-row"><div><small>POCHI LA BIASHARA</small><strong>0713974590</strong></div><button class="btn btn-light" id="donateCopy">Copy number</button></div><form id="donationForm" class="donation-form"><label>Your name (optional)<input id="donorName" maxlength="70" placeholder="Your name"></label><label>Amount you intend to give (KSh)<select id="donationAmount"><option value="100">100</option><option value="250">250</option><option value="500" selected>500</option><option value="1000">1,000</option><option value="2000">2,000</option><option value="other">Other amount</option></select></label><label id="otherAmountWrap" hidden>Enter amount (KSh)<input id="otherDonationAmount" type="number" min="10" max="100000" step="10" placeholder="e.g. 300"></label><button class="btn btn-donate full" type="submit">💜 I want to support</button></form><small class="disclaimer">This form prepares donation instructions; it does not collect or process money. Send only after confirming the recipient name displayed by M-PESA. The Foundation's registration/programmes are in development; donations are voluntary and not represented as tax-deductible.</small></div></div></section>
-<section class="ad-section"><div class="ad-label">STUDYBUDDY IN 15 SECONDS</div><div class="ad-video"><div class="ad-play">▶</div><div class="ad-text"><span>YOUR GOALS DESERVE A PLAN.</span><h2>Don't just study harder.<br><b>Study smarter.</b></h2><p>StudyBuddy — your learning companion.</p></div><div class="ad-bottom">LEARN • PRACTISE • GROW <span>✦ STUDYBUDDY</span></div></div><p class="ad-caption">A motion-style promotional preview. Replace this panel with your own MP4 advert when you have a finished video.</p></section>
-<section class="faq-section"><div class="section-head"><div class="eyebrow">GOOD QUESTIONS</div><h2>Quick answers.<br><span>Clear next steps.</span></h2></div><div class="faq-grid"><details><summary>Who can use StudyBuddy?</summary><p>University, high-school and junior-secondary learners, as well as anyone studying independently.</p></details><details><summary>Can I install it on my phone?</summary><p>Yes. Use the Install button in a supported browser. On iPhone, open StudyBuddy in Safari and choose Share, then Add to Home Screen.</p></details><details><summary>How does Premium work?</summary><p>Premium costs KSh 50 for seven days. You complete checkout through Paystack and renew manually when your access expires.</p></details><details><summary>Does StudyBuddy replace teachers?</summary><p>No. It is a learning companion designed to explain, guide and help you practise. Always follow your teacher's instructions and verify important information.</p></details></div></section>
-<section class="contact-section"><div><div class="eyebrow">WE'RE HERE TO HELP</div><h2>Questions? Let's talk.</h2><p>Reach the StudyBuddy support team for help with accounts, payments or using the platform.</p></div><div class="contact-links"><a href="mailto:fabianmunene60@gmail.com">✉ fabianmunene60@gmail.com</a><a href="https://wa.me/254796875061" target="_blank" rel="noopener">◉ WhatsApp: 0796875061</a></div></section>
-</main>
-<footer><a class="brand" href="#"><span class="brand-mark">✦</span> StudyBuddy</a><span>© <span id="year"></span> StudyBuddy. Built for curious minds everywhere.</span><div><a href="mailto:fabianmunene60@gmail.com">Support</a><a href="#hopebridge">HopeBridge Africa</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refunds.html">Refunds</a></div></footer>
-<div class="modal-backdrop" id="authModal"><div class="modal"><button class="modal-close" id="modalClose">×</button><div class="brand"><span class="brand-mark">✦</span> StudyBuddy</div><h2 id="modalTitle">Create your account</h2><p id="modalSub">Your next learning breakthrough starts here.</p><form id="authForm"><label>Full name<input id="fullName" placeholder="Your name" autocomplete="name"></label><label>Phone number<input id="phone" placeholder="+254..." autocomplete="tel"></label><label>Email address<input id="email" type="email" placeholder="you@example.com" required autocomplete="email"></label><label>What do you study?<select id="authLevel"><option value="university">University</option><option value="high school">High school</option><option value="junior secondary">Junior secondary</option><option value="other">Other / self-study</option></select></label><label>Password<input id="password" type="password" placeholder="At least 8 characters" minlength="8" required autocomplete="new-password"></label><label class="consent"><input id="privacyConsent" type="checkbox" required> I agree to the <a href="/privacy.html" target="_blank">Privacy Policy</a> and <a href="/terms.html" target="_blank">Terms</a>.</label><button class="btn btn-primary full" id="authSubmit">Create account</button></form><p class="modal-switch" id="modalSwitch">Already registered? <button id="switchAuth">Log in</button></p><p class="form-message" id="authMessage"></p></div></div>
-<div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/config.js"></script><script src="/app.js"></script>
-</body></html>
+</div></div>
+
+<div class="wrap">
+  <section id="start">
+    <h2>Choose your subject</h2>
+    <p class="sub">Tap a subject, type your question, pay and get your help.</p>
+    <div class="grid" id="subjects"></div>
+
+    <div class="card hide" id="form">
+      <span class="price">KSh 50 per assignment</span>
+      <label>Subject</label><select id="subj"></select>
+      <div class="row">
+        <div><label>Level</label><select id="lvl"><option>Secondary</option><option selected>University</option><option>Postgraduate</option></select></div>
+        <div><label>Reply language</label><select id="lang"><option>English</option><option>Kiswahili</option><option>French</option><option>Spanish</option></select></div>
+      </div>
+      <label>AI engine</label>
+      <select id="assignmentProvider"><option value="auto">Automatic (recommended)</option><option value="openai">OpenAI</option><option value="claude">Claude</option></select>
+      <label>Your assignment question</label>
+      <textarea id="q" maxlength="6000" placeholder="Type or paste your question here…"></textarea>
+      <label>Your email (for your payment receipt)</label>
+      <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
+      <button class="btn main" id="pay">Pay KSh 50 &amp; get help</button>
+      <div class="msg bad" id="err"></div>
+      <p class="msg">You will pay securely on Paystack with M-Pesa or card, then come straight back here for your answer. We explain the steps so you can learn from them.</p>
+    </div>
+
+    <div class="card hide" id="status"><div class="out" id="stxt"></div>
+      <button class="btn alt hide" id="again" style="margin-top:12px">Ask another question</button></div>
+  </section>
+
+  <section id="ask">
+    <h2>Ask the AI tutor <span class="soon">Free</span></h2>
+    <p class="sub" id="left">A few free questions every day. For a full worked solution to your assignment, use the paid help above.</p>
+    <p class="msg" id="aiStatus" aria-live="polite">Checking available AI engines…</p>
+    <div class="card" style="margin-top:0">
+      <label for="chatProvider">Choose your AI engine</label>
+      <select id="chatProvider"><option value="auto">Automatic (recommended)</option><option value="openai">OpenAI</option><option value="claude">Claude</option></select>
+      <div id="chat"><div class="bub a">Hi! Ask me anything you are studying and I will explain it.</div></div>
+      <div class="row2"><input id="cin" maxlength="1500" placeholder="Type your question…"><button class="btn main" id="csend" style="width:auto;margin-top:0">Send</button></div>
+      <div class="msg bad" id="cerr"></div>
+    </div>
+  </section>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="card step"><b>1</b><div><strong>Ask</strong><br><span class="sub">Pick your subject and type your question.</span></div></div>
+      <div class="card step"><b>2</b><div><strong>Pay KSh 50</strong><br><span class="sub">M-Pesa or card through Paystack.</span></div></div>
+      <div class="card step"><b>3</b><div><strong>Learn</strong><br><span class="sub">Get step-by-step help on screen.</span></div></div>
+    </div>
+    <p class="sub" style="margin-top:14px">Coming soon: <span class="soon">Revision quizzes</span></p>
+  </section>
+
+  <section id="policies">
+    <h2>Our promises</h2>
+    <div class="steps">
+      <div class="card"><strong>💸 Refunds</strong><br><span class="sub">If you are charged and the help is not delivered, contact us within 7 days with your payment reference and we will redo it or refund you.</span></div>
+      <div class="card"><strong>🎓 Academic integrity</strong><br><span class="sub">StudyBuddy is a learning aid. Use the explanations to understand your work and follow your school’s rules.</span></div>
+      <div class="card"><strong>🔒 Privacy</strong><br><span class="sub">We keep only your email and payment reference. Card and M-Pesa details are handled by Paystack and never stored by us. We never sell your data.</span></div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact us</h2>
+    <div class="card" style="margin-top:0">
+      <p style="margin:0">✉️ <a href="mailto:fabianmunene60@gmail.com">fabianmunene60@gmail.com</a><br>📞 <a href="tel:+254796875061">+254 796 875 061</a> · <a href="https://wa.me/254796875061" target="_blank" rel="noopener">WhatsApp</a><br>📍 Kenya · We reply within one business day.</p>
+    </div>
+  </section>
+  <footer>© 2026 StudyBuddy · Payments processed securely by Paystack</footer>
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var SUBJ=[["➗","Mathematics"],["📊","Statistics"],["💻","Computer Science"],["⚛️","Physics"],["⚗️","Chemistry"],["🧬","Biology"],["💰","Economics"],["🏢","Business"],["📖","English / Literature"],["🏛️","History"],["✨","Other"]];
+  function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
+  var sg=$("subjects"),ss=$("subj");
+  SUBJ.forEach(function(s){
+    var b=document.createElement("button");b.className="sbj";b.innerHTML="<span>"+s[0]+"</span>";b.appendChild(document.createTextNode(s[1]));
+    b.onclick=function(){pick(s[1])};sg.appendChild(b);
+    var o=document.createElement("option");o.textContent=s[1];ss.appendChild(o);
+  });
+  function pick(name){
+    ss.value=name;$("form").classList.remove("hide");$("status").classList.add("hide");
+    Array.prototype.forEach.call(sg.children,function(c){c.classList.toggle("on",c.textContent===name)});
+    $("form").scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  function show(t,cls){var s=$("status");s.classList.remove("hide");$("stxt").className="out "+(cls||"");$("stxt").textContent=t;s.scrollIntoView({behavior:"smooth",block:"nearest"})}
+  $("pay").onclick=async function(){
+    var q=$("q").value.trim(),em=$("email").value.trim();$("err").textContent="";
+    if(!q){$("err").textContent="Please type your assignment question.";return}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){$("err").textContent="Please enter a valid email.";return}
+    var btn=$("pay");btn.disabled=true;btn.textContent="Opening secure payment…";
+    lsSet("sb_form",JSON.stringify({subject:ss.value,level:$("lvl").value,language:$("lang").value,question:q,provider:$("assignmentProvider").value}));
+    try{
+      var r=await fetch("/api/pay",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em})});
+      var j=await r.json();
+      if(!r.ok||!j.authorizationUrl)throw new Error(j.error||"Payment could not start.");
+      location.href=j.authorizationUrl;
+    }catch(e){$("err").textContent=e.message;btn.disabled=false;btn.textContent="Pay KSh 50 & get help"}
+  };
+  $("again").onclick=function(){history.replaceState(null,"",location.pathname);lsDel("sb_form");location.reload()};
+  var ref=new URLSearchParams(location.search).get("reference")||new URLSearchParams(location.search).get("trxref");
+  if(ref)back(ref);
+  async function back(ref){
+    show("Confirming your payment…");
+    for(var i=0;i<14;i++){
+      try{
+        var r=await fetch("/api/pay/"+encodeURIComponent(ref));var j=await r.json();
+        if(j.status==="paid"){
+          if(j.used){show("This payment has already been used for an assignment. To get more help, please pay again.");$("again").classList.remove("hide");return}
+          return answer(ref);
+        }
+        if(j.status==="failed"){show("The payment did not go through, so you have not been charged. Please try again.","bad");$("again").classList.remove("hide");return}
+      }catch(e){}
+      await new Promise(function(res){setTimeout(res,2500)});
+    }
+    show("We are still waiting for confirmation. If you completed the payment, refresh this page in a minute. If it keeps failing, contact us with this reference: "+ref,"bad");
+  }
+  async function answer(ref){
+    var f=null;try{f=JSON.parse(lsGet("sb_form")||"null")}catch(e){}
+    if(!f||!f.question){show("Payment confirmed ✓ Please choose your subject above and type your question, then use the reference "+ref+" when you contact us. (Your question was not saved on this device.)");$("again").classList.remove("hide");return}
+    show("Payment confirmed ✓ Preparing your help…","ok");
+    try{
+      var r=await fetch("/api/assignment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref,subject:f.subject,level:f.level,language:f.language,question:f.question,provider:f.provider||"auto"})});
+      var j=await r.json();
+      if(!r.ok)throw new Error(j.error||"Something went wrong.");
+      lsDel("sb_form");show(j.answer+"\\n\\n— "+(j.provider==="claude"?"Claude":"OpenAI")+" response");$("again").classList.remove("hide");
+    }catch(e){show(e.message+" Refresh this page to try again. Reference: "+ref,"bad")}
+  }
+  var hist=[];
+  function bub(c,t){var d=document.createElement("div");d.className="bub "+c;d.textContent=t;$("chat").appendChild(d);d.scrollIntoView({block:"nearest"});return d}
+  async function send(){
+    var t=$("cin").value.trim();if(!t)return;$("cin").value="";$("cerr").textContent="";
+    bub("u",t);hist.push({role:"user",content:t});var w=bub("a","…");$("csend").disabled=true;
+    try{
+      var r=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:hist,provider:$("chatProvider").value})});
+      var j=await r.json();if(!r.ok)throw new Error(j.error||"Something went wrong.");
+      w.textContent=j.answer+(j.provider?"\\n\\n— "+(j.provider==="claude"?"Claude":"OpenAI")+" response":"");hist.push({role:"assistant",content:j.answer});
+      if(typeof j.remaining==="number")$("left").textContent=j.remaining+" free question"+(j.remaining===1?"":"s")+" left today. For a full worked solution to your assignment, use the paid help above.";
+    }catch(e){w.remove();hist.pop();$("cerr").textContent=e.message}
+    $("csend").disabled=false;
+  }
+  $("csend").onclick=send;$("cin").onkeydown=function(e){if(e.key==="Enter")send()};
+  fetch("/api/ai/status").then(function(r){return r.json()}).then(function(s){
+    var names=[];
+    ["openai","claude"].forEach(function(p){
+      var optionLabel=p==="openai"?"OpenAI":"Claude";
+      ["chatProvider","assignmentProvider"].forEach(function(id){
+        var el=$(id), opt=el.querySelector('option[value="'+p+'"]');
+        if(opt)opt.disabled=!s.providers[p];
+      });
+      if(s.providers[p])names.push(optionLabel);
+    });
+    $("aiStatus").textContent=names.length
+      ? "Available AI engines: "+names.join(" and ")+". Automatic mode uses "+(s.defaultProvider==="claude"?"Claude":"OpenAI")+" first"+(s.fallbackEnabled?", with automatic fallback.":".")
+      : "AI engines are not configured yet. Please contact the StudyBuddy administrator.";
+  }).catch(function(){$("aiStatus").textContent="AI engine status is unavailable. Please try again later.";});
+  if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})});
+})();
+</script>
+</body>
+</html>

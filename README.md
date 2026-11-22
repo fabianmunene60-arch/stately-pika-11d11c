@@ -1,66 +1,93 @@
-# StudyBuddy Global — upgraded website package
+# StudyBuddy — Dual AI edition
 
-A redesigned, responsive StudyBuddy landing page/PWA for university, high-school and junior-secondary learners. Includes an AI chat interface, Supabase sign-up/login, a Netlify OpenAI function, KSh 50 / 7-day Paystack checkout, installation prompt, HopeBridge donation information, and draft Privacy/Terms pages.
+StudyBuddy now supports **OpenAI and Anthropic Claude** through one server-side AI gateway.
 
-## What has been upgraded
-- Stronger purple/blue/gold identity, modern typography, mobile-first layout and generated student photography.
-- Live AI chat interface connected to `/.netlify/functions/ai-chat` after credentials are configured.
-- Daily AI fair-use limits: 5 requests for free accounts and 60 for active Premium accounts. This is a starter limit and can be adjusted.
-- Premium payment initialization and server-side Paystack verification. KSh 50 is charged as 5,000 KES subunits and grants 7 days. Renewal is manual, not automatic.
-- Installable PWA manifest, 192px/512px icons, service worker and install prompt. It is not automatically published in Google Play or Apple's App Store.
-- HopeBridge section with a donation-intent form that opens WhatsApp and a copyable Pochi La Biashara number. It does not itself collect money.
-- Draft Privacy Policy and Terms pages. They must be reviewed and completed before public launch, especially for younger users.
+## What is implemented
 
-## 1. Supabase setup
-1. Create/open a project at https://supabase.com.
-2. In Authentication → Providers, enable Email. Set the Site URL and redirect URLs to your Netlify HTTPS domain.
-3. In SQL Editor, run `supabase/schema.sql`.
-4. In `config.js`, replace `SUPABASE_URL` and `SUPABASE_ANON_KEY` with the Project URL and anon/public key.
-5. Keep the service-role key private; put it only in Netlify environment variables.
+- Existing StudyBuddy landing page and installable PWA shell.
+- OpenAI Responses API integration.
+- Anthropic Claude Messages API integration.
+- Provider choice in the free AI tutor and paid assignment flow:
+  - Automatic (recommended)
+  - OpenAI
+  - Claude
+- Server-side fallback: if the preferred provider errors and fallback is enabled, the other configured provider is tried.
+- `/api/ai/status` endpoint reports which providers are configured (never returns keys).
+- Existing Paystack checkout, webhook signature validation and payment verification retained.
+- Paid assignment response is unlocked only after server-side payment verification.
+- Basic security headers, input bounds and atomic payment-file writes.
 
-## 2. Netlify environment variables
-Add these under Project configuration → Environment variables:
-- `OPENAI_API_KEY` — private OpenAI API key
-- `OPENAI_MODEL` — a model enabled for your API account (default in code: `gpt-4o-mini`)
-- `SUPABASE_URL` — project URL
-- `SUPABASE_ANON_KEY` — public anon key
-- `SUPABASE_SERVICE_ROLE_KEY` — private service-role key
-- `PAYSTACK_SECRET_KEY` — Paystack test secret first, then live secret after approval
-- `SITE_URL` — exact deployed HTTPS site URL, e.g. your Netlify site URL
+## AI routing
 
-Never paste the OpenAI or Paystack secret key into HTML, `app.js`, `config.js`, GitHub, screenshots or public chat. OpenAI API usage is billed separately from a ChatGPT subscription; set a budget/spend limit in the OpenAI platform.
+`AI_DEFAULT_PROVIDER=openai` makes OpenAI the first-choice provider when a student selects Automatic. Set it to `claude` to make Claude the first choice.
 
-## 3. Paystack setup
-1. Finish the required Paystack account verification and activate the relevant payment channels.
-2. Test with Paystack test keys first.
-3. Set `PAYSTACK_SECRET_KEY` in Netlify to the test secret, deploy, and test the complete checkout/verification flow.
-4. Only after Paystack approves the account and you have tested, replace it with the live secret key and redeploy.
-5. In Paystack dashboard webhook settings, register `https://YOUR-SITE/.netlify/functions/paystack-webhook` so successful payments can be confirmed even if the student closes the checkout page. Keep the callback verification enabled as well.
-5. The code currently initializes KES 50 and checks KES 50 at verification. Check your Paystack dashboard to confirm M-Pesa/mobile money is enabled for your account.
+`AI_FALLBACK_ENABLED=true` enables failover to the other configured provider. If a student explicitly selects OpenAI or Claude, that provider is tried first, followed by the other configured provider if failover is enabled.
 
-## 4. Deploy
-1. Upload the extracted folder to a GitHub repository.
-2. In Netlify choose Add new project → Import an existing project and connect the repository.
-3. Build command: leave blank. Publish directory: `.`.
-4. Add all environment variables and deploy.
-5. After any change to environment variables, trigger a fresh deploy.
+The default model IDs are configurable in `.env` (confirm model access in each provider account):
+- OpenAI: `gpt-6.2-astra` (example model ID shown in the current OpenAI API quickstart).
+- Claude: `claude-haiku-5-5` (fast, cost-effective option listed in Anthropic documentation).
 
-## 5. Test before sharing publicly
-- Register and confirm an email account.
-- Log in and send an AI question. Check the daily free allowance.
-- Complete a Paystack test payment and confirm Premium activates for 7 days.
-- Try to verify the same Paystack reference twice; it must not add another week.
-- Test on Android Chrome and iPhone Safari. On iPhone use Share → Add to Home Screen.
-- Test donation form: it opens WhatsApp with a draft message; the user must separately verify recipient details and send funds through M-PESA.
+If your API account does not have access to a default model, change the model ID to one enabled for your account. Model availability and prices can change.
 
-## Important launch cautions
-- This is a deployable starter, not proof that any third-party service is configured or live. Do not advertise AI or payments as operational until you have tested them on the deployed site.
-- The AI fair-use limit is 5 questions/day free and 60/day Premium in the starter function. Monitor OpenAI usage and change limits if necessary.
-- The donation form is an intent/contact form, not a donation payment processor. Confirm HopeBridge's legal status, governance, recipient account ownership and financial reporting before asking the public for funds. The page clearly states that registration/programmes are in development.
-- The Privacy Policy and Terms are drafts, not legal advice. Complete them with the operator's legal identity, retention details, refund policy, safeguarding/guardian consent and applicable Kenyan data-protection obligations before taking student registrations, particularly from minors.
-- The PWA can be installed from the website over HTTPS. It is not a native Play Store/App Store app.
+## Setup
 
-## Supplied support details
-- Email: fabianmunene60@gmail.com
-- WhatsApp: +254 796 875 061
-- HopeBridge Pochi La Biashara: 0713974590 (provided by site owner; confirm recipient identity before public use)
+1. Install Node.js 18.17 or newer.
+2. Extract this ZIP.
+3. In the project folder run:
+
+   ```bash
+   npm install
+   ```
+
+4. Copy `.env.example` to `.env`.
+5. Add at least one AI key. To use both providers and automatic failover, add both. Paystack credentials are only needed when you enable checkout:
+   - OpenAI key: https://platform.openai.com/api-keys
+   - Anthropic key: https://console.anthropic.com/
+6. Set `PUBLIC_BASE_URL` to the HTTPS address where this Node server will run when enabling Paystack checkout.
+7. Start the server:
+
+   ```bash
+   npm start
+   ```
+
+8. Open `http://localhost:3000` during local testing.
+9. Check `http://localhost:3000/api/health` and `http://localhost:3000/api/ai/status`.
+
+## Paystack setup
+
+- Use Paystack TEST mode first.
+- Configure the webhook URL as `https://YOUR-DOMAIN/api/paystack/webhook`.
+- Confirm that your Paystack account supports the payment channels you intend to offer in Kenya.
+- Test initialization, successful payment, failed payment, webhook verification and one-payment/one-assignment behavior before enabling live mode.
+- Keep `PAYSTACK_SECRET_KEY` only on the server.
+
+## Deployment
+
+Deploy the **whole project folder** to a Node.js host (not only the `public` folder). Configure all `.env` values in the host's environment-variable dashboard. The `public/` folder is served by Express.
+
+The Paystack callback returns to `/app.html`; this file is included and loads the StudyBuddy app interface.
+
+## Important production limitations to resolve before public launch
+
+1. **Payment storage:** `payments.json` is a starter store, not a production database. Use a persistent disk at minimum, or preferably migrate payment records and usage limits to Supabase/Postgres. Set `DATA_FILE` to a persistent path if your host supports persistent disks.
+2. **Usage limits:** free-tier per-IP counters are in memory and reset when the server restarts. Move them to a shared database/Redis before scaling.
+3. **Authentication:** student accounts and Supabase authentication are not included in this build yet. Do not treat IP limits as account-level entitlements.
+4. **Rate limiting:** add a production rate-limiting layer and abuse monitoring before sharing widely.
+5. **Privacy:** avoid sending unnecessary student personal information to AI providers. Publish a privacy notice that explains data handling and provider processing.
+6. **Billing:** AI API usage is charged separately by OpenAI and Anthropic. Set provider budgets/alerts and conservative usage limits.
+7. **Academic integrity:** use AI outputs as learning support; students should verify facts and follow their institution's rules.
+
+## API endpoints
+
+- `GET /api/health` — server health and configured assignment price.
+- `GET /api/ai/status` — configured AI providers and fallback status.
+- `POST /api/ask` — limited free tutor chat. Body: `{ "messages": [...], "provider": "auto|openai|claude" }`.
+- `POST /api/pay` — initialize Paystack checkout. Body: `{ "email": "student@example.com" }`.
+- `GET /api/pay/:reference` — verify payment status.
+- `POST /api/paystack/webhook` — Paystack webhook.
+- `POST /api/assignment` — paid assignment help. Body includes `reference`, `subject`, `level`, `language`, `question`, and optional `provider`.
+
+## Official API references
+
+- OpenAI Responses API: https://developers.openai.com/api/reference/resources/responses/methods/create
+- Anthropic Messages API: https://platform.claude.com/docs/en/api/messages/create
