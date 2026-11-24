@@ -50,6 +50,7 @@ textarea{min-height:120px;resize:vertical}
 .msg{font-size:14px;margin-top:10px}.bad{color:var(--bad)}.ok{color:var(--ok)}
 .soon{font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mute)}
 .hide{display:none}.bub{padding:10px 12px;border-radius:12px;margin:8px 0;white-space:pre-wrap;word-wrap:break-word}.bub.u{background:var(--brand);color:#fff;margin-left:18%}.bub.a{background:var(--bg);border:1px solid var(--line);margin-right:10%}.row2{display:flex;gap:8px;margin-top:10px}
+.auth-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.support-hero{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:center}.support-hero img{width:100%;height:260px;object-fit:cover;border-radius:18px}.slides{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.slide{overflow:hidden;padding:0}.slide img{width:100%;height:155px;object-fit:cover}.slide:nth-child(1) img{object-position:left center}.slide:nth-child(2) img{object-position:center center}.slide:nth-child(3) img{object-position:right center}.slide div{padding:16px}.donate{background:linear-gradient(135deg,#172554,#4338ca);color:white;border-radius:18px;padding:22px}.donate p{color:#e0e7ff}.account-pill{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;background:var(--bg);border:1px solid var(--line);border-radius:999px;font-size:14px}.socials a{margin-right:12px}.muted-note{font-size:13px;color:var(--mute)}@media(max-width:650px){.support-hero{grid-template-columns:1fr}.support-hero img{height:210px}}
 footer{border-top:1px solid var(--line);padding:20px 0 34px;margin-top:24px;color:var(--mute);font-size:14px;text-align:center}
 a{color:var(--brand)}
 </style>
@@ -57,10 +58,10 @@ a{color:var(--brand)}
 <body>
 <div class="top"><div class="wrap">
   <header><div class="logo">📚 StudyBuddy</div>
-    <nav><a href="#start">Get help</a><a href="#ask">Ask AI</a><a href="#how">How it works</a><a href="#policies">Policies</a><a href="#contact">Contact</a></nav></header>
+    <nav><a href="#start">Get help</a><a href="#ask">Ask AI</a><a href="#account">Account</a><a href="#support">Support us</a><a href="#hopebridge">HopeBridge</a></nav></header>
   <div class="hero">
     <h1>Stuck on an assignment? <span>Get unstuck in minutes.</span></h1>
-    <p class="lead">Pick your subject, pay KSh 50 and get step-by-step help that explains the working.</p>
+    <p class="lead">Your personal learning companion. Ask questions, understand difficult topics and grow your confidence—one lesson at a time.</p>
     <a class="btn p" href="#start">Choose your subject</a>
   </div>
 </div></div>
@@ -86,11 +87,22 @@ a{color:var(--brand)}
       <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
       <button class="btn main" id="pay">Pay KSh 50 &amp; get help</button>
       <div class="msg bad" id="err"></div>
-      <p class="msg">You will pay securely on Paystack with M-Pesa or card, then come straight back here for your answer. We explain the steps so you can learn from them.</p>
+      <p class="msg">Paystack is currently in test mode, so do not treat this as a live payment option. For temporary manual assignment-payment arrangements, email sbuddy290@gmail.com first and wait for confirmation. Do not send assignment fees to the donation account unless the StudyBuddy administrator confirms in writing.</p>
     </div>
 
     <div class="card hide" id="status"><div class="out" id="stxt"></div>
       <button class="btn alt hide" id="again" style="margin-top:12px">Ask another question</button></div>
+  </section>
+
+  <section id="account">
+    <h2>Your StudyBuddy account</h2>
+    <p class="sub">Create an account to keep your profile and AI learning conversations available when you return on this device or sign in elsewhere.</p>
+    <div class="card" id="signedIn" hidden><span class="account-pill">👤 <span id="welcomeName">Student</span></span> <button class="btn alt" id="logout" style="margin-left:8px">Sign out</button></div>
+    <div class="auth-grid" id="authForms">
+      <div class="card" style="margin-top:0"><h3>Create an account</h3><label for="regName">Full name</label><input id="regName" autocomplete="name" placeholder="Your name"><label for="regEmail">Email</label><input id="regEmail" type="email" autocomplete="email" placeholder="you@example.com"><label for="regPassword">Password (at least 8 characters)</label><input id="regPassword" type="password" autocomplete="new-password" placeholder="Create a password"><button class="btn main" id="register">Create account</button><p class="msg bad" id="regError"></p></div>
+      <div class="card" style="margin-top:0"><h3>Welcome back</h3><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" placeholder="you@example.com"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><button class="btn main" id="login">Sign in</button><p class="msg bad" id="loginError"></p></div>
+    </div>
+    <p class="muted-note">Your password is stored as a secure one-way hash on the StudyBuddy server. Use a unique password. Account storage must be deployed on persistent server storage so your account survives server restarts.</p>
   </section>
 
   <section id="ask">
@@ -110,10 +122,32 @@ a{color:var(--brand)}
     <h2>How it works</h2>
     <div class="steps">
       <div class="card step"><b>1</b><div><strong>Ask</strong><br><span class="sub">Pick your subject and type your question.</span></div></div>
-      <div class="card step"><b>2</b><div><strong>Pay KSh 50</strong><br><span class="sub">M-Pesa or card through Paystack.</span></div></div>
+      <div class="card step"><b>2</b><div><strong>Choose your support option</strong><br><span class="sub">Use available checkout or contact us for manual assistance.</span></div></div>
       <div class="card step"><b>3</b><div><strong>Learn</strong><br><span class="sub">Get step-by-step help on screen.</span></div></div>
     </div>
     <p class="sub" style="margin-top:14px">Coming soon: <span class="soon">Revision quizzes</span></p>
+  </section>
+
+  <section id="support">
+    <div class="support-hero"><div><span class="price">GROW WITH US</span><h2>Help StudyBuddy reach more learners</h2><p class="sub">Every contribution helps us improve the learning experience, maintain reliable AI services, build useful study tools and make quality learning support more accessible.</p><a class="btn main" href="#studybuddy-donate">Support StudyBuddy</a></div><img src="/community-impact.png" alt="Students learning together, volunteers sharing books and a teacher supporting learners"></div>
+    <h2 style="margin-top:26px">A little support can move learning forward</h2>
+    <div class="slides">
+      <article class="card slide"><img src="/community-impact.png" alt="Students collaborating on a laptop"><div><h3>Build better learning tools</h3><p class="sub">Help us improve StudyBuddy's AI tutor, revision resources and student experience.</p></div></article>
+      <article class="card slide"><img src="/community-impact.png" alt="School learners receiving books"><div><h3>Expand access</h3><p class="sub">Help us reach learners who need more accessible and affordable academic support.</p></div></article>
+      <article class="card slide"><img src="/community-impact.png" alt="Teacher guiding students in a classroom"><div><h3>Invest in student potential</h3><p class="sub">Partner with us through mentorship, resources, feedback or financial support.</p></div></article>
+    </div>
+    <div class="donate" id="studybuddy-donate" style="margin-top:16px"><h2>Support StudyBuddy</h2><p>Send your contribution through M-Pesa PayBill:</p><div class="steps"><div><strong>PayBill</strong><h2>400200</h2></div><div><strong>Account number</strong><h2 style="font-size:clamp(20px,4vw,28px)">01103447765001</h2></div></div><button class="btn p" id="copyDonation">Copy payment details</button><p class="muted-note">Please confirm the displayed recipient name in M-Pesa before sending. Keep your transaction message for your records. Contributions are voluntary. The website does not automatically verify or receipt M-Pesa donations.</p></div>
+  </section>
+
+  <section id="hopebridge">
+    <div class="support-hero"><div><span class="price">COMMUNITY • DIGNITY • OPPORTUNITY</span><h2>HopeBridge Africa Foundation</h2><p class="sub">Be part of a community that believes every person deserves the opportunity to learn, grow and live with dignity. Your support can help us develop practical initiatives that uplift individuals and communities.</p><a class="btn main" href="#hope-donate">Support the foundation</a></div><img src="/community-impact.png" alt="Community volunteers and students sharing educational resources"></div>
+    <h2 style="margin-top:26px">Where support can make a difference</h2>
+    <div class="slides">
+      <article class="card slide"><img src="/community-impact.png" alt="Learners in a classroom"><div><h3>Education support</h3><p class="sub">Help provide learning materials, mentorship and opportunities for young people.</p></div></article>
+      <article class="card slide"><img src="/community-impact.png" alt="Volunteers distributing books"><div><h3>Community empowerment</h3><p class="sub">Support initiatives that respond to local needs and strengthen communities.</p></div></article>
+      <article class="card slide"><img src="/community-impact.png" alt="A teacher assisting students"><div><h3>Hope for the future</h3><p class="sub">Partner with us through volunteering, skills, networks, resources or donations.</p></div></article>
+    </div>
+    <div class="donate" id="hope-donate" style="margin-top:16px"><h2>Donate to HopeBridge Africa Foundation</h2><p>Every willing contribution is appreciated. Send donations via M-Pesa PayBill:</p><div class="steps"><div><strong>PayBill</strong><h2>400200</h2></div><div><strong>Account number</strong><h2 style="font-size:clamp(20px,4vw,28px)">01103447765001</h2></div></div><button class="btn p" id="copyHopeDonation">Copy payment details</button><p class="muted-note">Please verify the recipient name shown by M-Pesa before confirming your donation. Keep the transaction confirmation. Before donating, request the foundation's current registration, governance and programme information. The website does not automatically verify or receipt M-Pesa donations.</p></div>
   </section>
 
   <section id="policies">
@@ -128,10 +162,10 @@ a{color:var(--brand)}
   <section id="contact">
     <h2>Contact us</h2>
     <div class="card" style="margin-top:0">
-      <p style="margin:0">✉️ <a href="mailto:fabianmunene60@gmail.com">fabianmunene60@gmail.com</a><br>📞 <a href="tel:+254796875061">+254 796 875 061</a> · <a href="https://wa.me/254796875061" target="_blank" rel="noopener">WhatsApp</a><br>📍 Kenya · We reply within one business day.</p>
+      <p style="margin:0">✉️ <a href="mailto:sbuddy290@gmail.com">sbuddy290@gmail.com</a><br>📷 Instagram: <a href="https://instagram.com/sbuddy290" target="_blank" rel="noopener">@sbuddy290</a><br>🎵 TikTok: <a href="https://tiktok.com/@sbuddy290" target="_blank" rel="noopener">@sbuddy290</a><br>📍 Kenya · For StudyBuddy and HopeBridge Africa Foundation enquiries.</p>
     </div>
   </section>
-  <footer>© 2026 StudyBuddy · Payments processed securely by Paystack</footer>
+  <footer>© 2026 StudyBuddy · Learning with purpose</footer>
 </div>
 
 <script>
@@ -195,6 +229,17 @@ a{color:var(--brand)}
       lsDel("sb_form");show(j.answer+"\\n\\n— "+(j.provider==="claude"?"Claude":"OpenAI")+" response");$("again").classList.remove("hide");
     }catch(e){show(e.message+" Refresh this page to try again. Reference: "+ref,"bad")}
   }
+  async function postJSON(url,data){var r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});var j=await r.json().catch(function(){return {}});if(!r.ok)throw new Error(j.error||"Request failed.");return j}
+  function setSignedIn(user){if(!user)return;$ ("welcomeName").textContent=user.name;$ ("signedIn").hidden=false;$ ("authForms").classList.add("hide");}
+  function setSignedOut(){$("signedIn").hidden=true;$ ("authForms").classList.remove("hide");}
+  $("register").onclick=async function(){ $("regError").textContent="";try{var j=await postJSON("/api/auth/register",{name:$ ("regName").value,email:$ ("regEmail").value,password:$ ("regPassword").value});setSignedIn(j.user);restoreChat([]);}catch(e){$("regError").textContent=e.message}};
+  $("login").onclick=async function(){ $("loginError").textContent="";try{var j=await postJSON("/api/auth/login",{email:$ ("loginEmail").value,password:$ ("loginPassword").value});setSignedIn(j.user);restoreChat(j.chat||[]);}catch(e){$("loginError").textContent=e.message}};
+  $("logout").onclick=async function(){try{await postJSON("/api/auth/logout",{});}catch(e){}setSignedOut();};
+  function restoreChat(saved){hist=saved.slice(-40);$("chat").innerHTML="";bub("a","Welcome back! Your saved learning conversation has been restored.");hist.forEach(function(m){bub(m.role==="user"?"u":"a",m.content)});}
+  async function saveChat(){try{await postJSON("/api/auth/chat",{chat:hist});}catch(e){}}
+  fetch("/api/auth/me").then(function(r){return r.json()}).then(function(j){if(j.user){setSignedIn(j.user);restoreChat(j.chat||[]);}}).catch(function(){});
+  function copyDonation(){var value="M-Pesa PayBill: 400200\nAccount number: 01103447765001";if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(value).then(function(){alert("Payment details copied. Verify the recipient name before sending.")}).catch(function(){alert(value)})}else{alert(value)}}
+  $("copyDonation").onclick=copyDonation;$("copyHopeDonation").onclick=copyDonation;
   var hist=[];
   function bub(c,t){var d=document.createElement("div");d.className="bub "+c;d.textContent=t;$("chat").appendChild(d);d.scrollIntoView({block:"nearest"});return d}
   async function send(){
@@ -203,7 +248,7 @@ a{color:var(--brand)}
     try{
       var r=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:hist,provider:$("chatProvider").value})});
       var j=await r.json();if(!r.ok)throw new Error(j.error||"Something went wrong.");
-      w.textContent=j.answer+(j.provider?"\\n\\n— "+(j.provider==="claude"?"Claude":"OpenAI")+" response":"");hist.push({role:"assistant",content:j.answer});
+      w.textContent=j.answer+(j.provider?"\\n\\n— "+(j.provider==="claude"?"Claude":"OpenAI")+" response":"");hist.push({role:"assistant",content:j.answer});saveChat();
       if(typeof j.remaining==="number")$("left").textContent=j.remaining+" free question"+(j.remaining===1?"":"s")+" left today. For a full worked solution to your assignment, use the paid help above.";
     }catch(e){w.remove();hist.pop();$("cerr").textContent=e.message}
     $("csend").disabled=false;

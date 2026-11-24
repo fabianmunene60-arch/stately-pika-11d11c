@@ -1,93 +1,66 @@
-# StudyBuddy — Dual AI edition
+# StudyBuddy — Dual AI + Student Accounts + Support Pages
 
-StudyBuddy now supports **OpenAI and Anthropic Claude** through one server-side AI gateway.
+This build includes a StudyBuddy learning interface, server-side OpenAI/Claude gateway, student registration and login, saved AI chat history, and support pages for StudyBuddy and HopeBridge Africa Foundation.
 
-## What is implemented
+## Important: this is a Node.js application
 
-- Existing StudyBuddy landing page and installable PWA shell.
-- OpenAI Responses API integration.
-- Anthropic Claude Messages API integration.
-- Provider choice in the free AI tutor and paid assignment flow:
-  - Automatic (recommended)
-  - OpenAI
-  - Claude
-- Server-side fallback: if the preferred provider errors and fallback is enabled, the other configured provider is tried.
-- `/api/ai/status` endpoint reports which providers are configured (never returns keys).
-- Existing Paystack checkout, webhook signature validation and payment verification retained.
-- Paid assignment response is unlocked only after server-side payment verification.
-- Basic security headers, input bounds and atomic payment-file writes.
+Deploy the **entire project folder** to a Node.js host that supports Express and persistent disk storage. A static-only Netlify site cannot run `server.js` or the `/api/*` endpoints by itself. If using Netlify, the backend must first be migrated to Netlify Functions or hosted separately and the frontend configured to call that backend.
 
-## AI routing
-
-`AI_DEFAULT_PROVIDER=openai` makes OpenAI the first-choice provider when a student selects Automatic. Set it to `claude` to make Claude the first choice.
-
-`AI_FALLBACK_ENABLED=true` enables failover to the other configured provider. If a student explicitly selects OpenAI or Claude, that provider is tried first, followed by the other configured provider if failover is enabled.
-
-The default model IDs are configurable in `.env` (confirm model access in each provider account):
-- OpenAI: `gpt-6.2-astra` (example model ID shown in the current OpenAI API quickstart).
-- Claude: `claude-haiku-5-5` (fast, cost-effective option listed in Anthropic documentation).
-
-If your API account does not have access to a default model, change the model ID to one enabled for your account. Model availability and prices can change.
-
-## Setup
+## Install and run
 
 1. Install Node.js 18.17 or newer.
-2. Extract this ZIP.
-3. In the project folder run:
+2. Run `npm install`.
+3. Copy `.env.example` to `.env`.
+4. Add at least one valid AI provider key to `.env` (OpenAI or Anthropic). Never put keys in `public/` or commit `.env`.
+5. Run `npm start`.
+6. Open `http://localhost:3000`.
+7. Check `/api/health` and `/api/ai/status`.
 
-   ```bash
-   npm install
-   ```
+## AI configuration
 
-4. Copy `.env.example` to `.env`.
-5. Add at least one AI key. To use both providers and automatic failover, add both. Paystack credentials are only needed when you enable checkout:
-   - OpenAI key: https://platform.openai.com/api-keys
-   - Anthropic key: https://console.anthropic.com/
-6. Set `PUBLIC_BASE_URL` to the HTTPS address where this Node server will run when enabling Paystack checkout.
-7. Start the server:
+- `OPENAI_API_KEY` and `OPENAI_MODEL` configure OpenAI. The default model is `gpt-4.1-mini`; change it to a model enabled for your API account if necessary.
+- `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` configure Claude. The default is `claude-haiku-4-5-20251001`; change it to a model enabled for your account if necessary.
+- `AI_DEFAULT_PROVIDER=openai` selects the first-choice provider in Automatic mode.
+- `AI_FALLBACK_ENABLED=true` tries the other configured provider if the first fails.
+- AI requests are made by the server. Provider secrets are never sent to the browser.
+- AI will remain unavailable until at least one valid API key is configured and that account has API access/billing enabled. A ChatGPT subscription is not the same as API billing.
 
-   ```bash
-   npm start
-   ```
+## Student accounts
 
-8. Open `http://localhost:3000` during local testing.
-9. Check `http://localhost:3000/api/health` and `http://localhost:3000/api/ai/status`.
+- `POST /api/auth/register` creates an account.
+- `POST /api/auth/login` signs in.
+- `GET /api/auth/me` returns the signed-in profile and saved chat.
+- `POST /api/auth/chat` saves the user's conversation.
+- `POST /api/auth/logout` ends the session.
 
-## Paystack setup
+Passwords are stored as salted scrypt hashes, not plain text. Sessions use an HttpOnly, SameSite=Lax cookie and expire after 30 days. Email verification and password-reset workflows are not included yet.
 
-- Use Paystack TEST mode first.
-- Configure the webhook URL as `https://YOUR-DOMAIN/api/paystack/webhook`.
-- Confirm that your Paystack account supports the payment channels you intend to offer in Kenya.
-- Test initialization, successful payment, failed payment, webhook verification and one-payment/one-assignment behavior before enabling live mode.
-- Keep `PAYSTACK_SECRET_KEY` only on the server.
+**Persistence is essential:** accounts and sessions are stored in `accounts.json` by default. On a production host, set `ACCOUNT_FILE` to a path on a persistent disk. If the host has ephemeral storage, accounts may be lost on redeploy/restart. Protect backups because the file contains personal data and password hashes.
 
-## Deployment
+## Payments and donations
 
-Deploy the **whole project folder** to a Node.js host (not only the `public` folder). Configure all `.env` values in the host's environment-variable dashboard. The `public/` folder is served by Express.
+- Paystack checkout is still dependent on server-side Paystack credentials and is not live merely because the UI exists. Keep test keys until end-to-end tests pass.
+- M-Pesa PayBill details are displayed for voluntary StudyBuddy and HopeBridge support. These are **manual transfers only**; this build does not connect to Safaricom Daraja, automatically verify M-Pesa payments, issue receipts, or unlock assignment purchases from M-Pesa.
+- Before accepting public donations, confirm that the PayBill and account number are authorized for the intended recipient and that HopeBridge's registration/governance disclosures are accurate. Ask donors to verify the recipient name shown in M-Pesa before confirming.
+- For automated M-Pesa checkout, integrate Safaricom Daraja using authorized credentials, callback endpoints, transaction reconciliation, and a secure database.
 
-The Paystack callback returns to `/app.html`; this file is included and loads the StudyBuddy app interface.
+## Production checklist
 
-## Important production limitations to resolve before public launch
-
-1. **Payment storage:** `payments.json` is a starter store, not a production database. Use a persistent disk at minimum, or preferably migrate payment records and usage limits to Supabase/Postgres. Set `DATA_FILE` to a persistent path if your host supports persistent disks.
-2. **Usage limits:** free-tier per-IP counters are in memory and reset when the server restarts. Move them to a shared database/Redis before scaling.
-3. **Authentication:** student accounts and Supabase authentication are not included in this build yet. Do not treat IP limits as account-level entitlements.
-4. **Rate limiting:** add a production rate-limiting layer and abuse monitoring before sharing widely.
-5. **Privacy:** avoid sending unnecessary student personal information to AI providers. Publish a privacy notice that explains data handling and provider processing.
-6. **Billing:** AI API usage is charged separately by OpenAI and Anthropic. Set provider budgets/alerts and conservative usage limits.
-7. **Academic integrity:** use AI outputs as learning support; students should verify facts and follow their institution's rules.
+- Use HTTPS and a Node host with persistent disk.
+- Set `NODE_ENV=production`, `ACCOUNT_FILE`, and `DATA_FILE` to persistent paths.
+- Add request rate limiting, email verification, password reset, CSRF/origin protections, monitoring and backups before broad public launch.
+- Move account/payment storage from JSON files to a managed database such as PostgreSQL/Supabase before scaling across multiple server instances.
+- Publish a privacy notice and retention policy.
+- Set AI provider spending limits and monitor usage.
+- Test registration, login, logout, chat persistence, AI failure handling, payment callbacks and mobile installation before launch.
 
 ## API endpoints
 
-- `GET /api/health` — server health and configured assignment price.
-- `GET /api/ai/status` — configured AI providers and fallback status.
-- `POST /api/ask` — limited free tutor chat. Body: `{ "messages": [...], "provider": "auto|openai|claude" }`.
-- `POST /api/pay` — initialize Paystack checkout. Body: `{ "email": "student@example.com" }`.
-- `GET /api/pay/:reference` — verify payment status.
-- `POST /api/paystack/webhook` — Paystack webhook.
-- `POST /api/assignment` — paid assignment help. Body includes `reference`, `subject`, `level`, `language`, `question`, and optional `provider`.
-
-## Official API references
-
-- OpenAI Responses API: https://developers.openai.com/api/reference/resources/responses/methods/create
-- Anthropic Messages API: https://platform.claude.com/docs/en/api/messages/create
+- `GET /api/health`
+- `GET /api/ai/status`
+- `POST /api/ask`
+- `POST /api/assignment`
+- `POST /api/pay` and `GET /api/pay/:reference`
+- `POST /api/paystack/webhook`
+- `POST /api/auth/register`, `/api/auth/login`, `/api/auth/logout`
+- `GET /api/auth/me`, `POST /api/auth/chat`

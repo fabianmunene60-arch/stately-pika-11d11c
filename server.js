@@ -9,19 +9,15 @@ const {
   PAYSTACK_SECRET_KEY,
   OPENAI_API_KEY,
   ANTHROPIC_API_KEY,
-  OPENAI_MODEL = "gpt-6.2-astra",
-  ANTHROPIC_MODEL = "claude-haiku-5-5",
-  AI_DEFAULT_PROVIDER = (process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY) ? "claude" : "openai",
+  OPENAI_MODEL = "gpt-4.1-mini",
+  ANTHROPIC_MODEL = "claude-haiku-4-5-20251001",
+  AI_DEFAULT_PROVIDER = "openai",
   AI_FALLBACK_ENABLED = "true",
   PUBLIC_BASE_URL,
   AMOUNT = "50",
   PORT = 3000,
 } = process.env;
 
-if (!OPENAI_API_KEY && !ANTHROPIC_API_KEY) {
-  console.error("Configure at least one AI key: OPENAI_API_KEY or ANTHROPIC_API_KEY.");
-  process.exit(1);
-}
 
 const PRICE = Number(AMOUNT);
 if (!Number.isFinite(PRICE) || PRICE <= 0) throw new Error("AMOUNT must be a positive number.");
@@ -39,6 +35,32 @@ function savePayments() {
   } catch (e) { console.error("Could not persist payment records:", e.message); }
 }
 
+// Lightweight persistent account store. Passwords are scrypt hashes; raw passwords are never stored.
+const ACCOUNT_FILE = process.env.ACCOUNT_FILE || path.join(__dirname, "accounts.json");
+let accountStore = { users: {}, sessions: {} };
+try { accountStore = Object.assign(accountStore, JSON.parse(fs.readFileSync(ACCOUNT_FILE, "utf8"))); } catch (_) {}
+function saveAccounts() {
+  const temp = ACCOUNT_FILE + ".tmp";
+  fs.writeFileSync(temp, JSON.stringify(accountStore, null, 2), { mode: 0o600 });
+  fs.renameSync(temp, ACCOUNT_FILE);
+}
+function cleanUser(user) { return { id: user.id, name: user.name, email: user.email, createdAt: user.createdAt }; }
+function sessionUser(req) {
+  const token = (req.headers.cookie || "").split(";").map(x => x.trim()).find(x => x.startsWith("sb_session="));
+  if (!token) return null;
+  const sid = decodeURIComponent(token.slice("sb_session=".length));
+  const session = accountStore.sessions[sid];
+  if (!session || session.expiresAt < Date.now()) { if (session) { delete accountStore.sessions[sid]; saveAccounts(); } return null; }
+  return Object.values(accountStore.users).find(u => u.id === session.userId) || null;
+}
+function requireUser(req, res, next) { const user = sessionUser(req); if (!user) return res.status(401).json({ error: "Please sign in to continue." }); req.user = user; next(); }
+function setSession(res, user) {
+  const sid = crypto.randomBytes(32).toString("hex");
+  accountStore.sessions[sid] = { userId: user.id, expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000 };
+  saveAccounts();
+  res.setHeader("Set-Cookie", "sb_session=" + encodeURIComponent(sid) + "; HttpOnly; SameSite=Lax; Path=/; Max-Age=2592000" + (process.env.NODE_ENV === "production" ? "; Secure" : ""));
+}
+
 const app = express();
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
@@ -54,28 +76,14 @@ app.use(express.json({
   limit: "100kb",
   verify: (req, _res, buf) => { req.rawBody = buf; }
 }));
-const PUBLIC_DIR = fs.existsSync(path.join(__dirname, "public", "index.html"))
-  ? path.join(__dirname, "public")
-  : __dirname;
-const SITE_FILES = new Set(["index.html", "app.html", "sw.js", "manifest.webmanifest", "icon-192.png", "icon-512.png"]);
-if (PUBLIC_DIR === __dirname) {
-  // Flat upload fallback: only these website files are ever served, never server.js or package.json.
-  app.use((req, res, next) => {
-    const name = req.path === "/" ? "index.html" : req.path.replace(/^\//, "");
-    if (!SITE_FILES.has(name)) return next();
-    if (name === "sw.js" || name.endsWith(".html")) res.setHeader("Cache-Control", "no-cache");
-    res.sendFile(path.join(__dirname, name));
-  });
-} else {
-  app.use(express.static(PUBLIC_DIR, {
-    maxAge: "1h",
-    setHeaders: (res, file) => {
-      if (file.endsWith("sw.js") || file.endsWith("index.html") || file.endsWith("app.html")) {
-        res.setHeader("Cache-Control", "no-cache");
-      }
+app.use(express.static(path.join(__dirname, "public"), {
+  maxAge: "1h",
+  setHeaders: (res, file) => {
+    if (file.endsWith("sw.js") || file.endsWith("index.html") || file.endsWith("app.html")) {
+      res.setHeader("Cache-Control", "no-cache");
     }
-  }));
-}
+  }
+}));
 
 function availableProviders() {
   return { openai: Boolean(OPENAI_API_KEY), claude: Boolean(ANTHROPIC_API_KEY) };
@@ -142,6 +150,7 @@ async function callClaude(messages, system, maxTokens) {
 
 async function generateAI({ messages, system, maxTokens = 900, provider = "auto" }) {
   const available = availableProviders();
+  if (!available.openai && !available.claude) throw new Error("AI is not configured yet. The administrator must add an OpenAI or Claude API key to the server environment.");
   const requested = providerName(provider);
   const preferred = requested === "auto"
     ? (AI_DEFAULT_PROVIDER === "claude" ? "claude" : "openai")
@@ -194,6 +203,39 @@ function applyTransaction(record, transaction) {
   }
 }
 
+app.post("/api/auth/register", (req, res) => {
+  const name = String(req.body?.name || "").trim().slice(0, 80);
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  const password = String(req.body?.password || "");
+  if (name.length < 2) return res.status(400).json({ error: "Enter your name (at least 2 characters)." });
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return res.status(400).json({ error: "Enter a valid email address." });
+  if (password.length < 8 || password.length > 128) return res.status(400).json({ error: "Your password must be at least 8 characters." });
+  if (accountStore.users[email]) return res.status(409).json({ error: "An account with this email already exists. Please sign in." });
+  const salt = crypto.randomBytes(16).toString("hex");
+  const passwordHash = crypto.scryptSync(password, salt, 64).toString("hex");
+  const user = { id: crypto.randomUUID(), name, email, salt, passwordHash, createdAt: Date.now(), chat: [] };
+  accountStore.users[email] = user; saveAccounts(); setSession(res, user);
+  res.status(201).json({ user: cleanUser(user) });
+});
+app.post("/api/auth/login", (req, res) => {
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  const password = String(req.body?.password || "").slice(0, 128);
+  const user = accountStore.users[email];
+  if (!user || !crypto.timingSafeEqual(Buffer.from(crypto.scryptSync(password, user.salt, 64).toString("hex")), Buffer.from(user.passwordHash))) return res.status(401).json({ error: "Email or password is incorrect." });
+  setSession(res, user); res.json({ user: cleanUser(user) });
+});
+app.get("/api/auth/me", (req, res) => { const user = sessionUser(req); res.json({ user: user ? cleanUser(user) : null, chat: user ? user.chat || [] : [] }); });
+app.post("/api/auth/logout", (req, res) => {
+  const token = (req.headers.cookie || "").split(";").map(x => x.trim()).find(x => x.startsWith("sb_session="));
+  if (token) { delete accountStore.sessions[decodeURIComponent(token.slice("sb_session=".length))]; saveAccounts(); }
+  res.setHeader("Set-Cookie", "sb_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0" + (process.env.NODE_ENV === "production" ? "; Secure" : "")); res.json({ ok: true });
+});
+app.post("/api/auth/chat", requireUser, (req, res) => {
+  const chat = Array.isArray(req.body?.chat) ? req.body.chat.slice(-80) : [];
+  req.user.chat = chat.filter(m => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string").map(m => ({ role: m.role, content: m.content.slice(0, 3000) }));
+  saveAccounts(); res.json({ ok: true });
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, price: PRICE, currency: CURRENCY });
 });
@@ -203,7 +245,7 @@ app.get("/api/ai/status", (_req, res) => {
     providers,
     defaultProvider: AI_DEFAULT_PROVIDER,
     fallbackEnabled: FALLBACK_ENABLED,
-    ready: providers.openai || providers.claude
+    ready: providers.openai || providers.claude, models: { openai: OPENAI_MODEL, claude: ANTHROPIC_MODEL }
   });
 });
 
@@ -348,7 +390,7 @@ app.post("/api/ask", async (req, res) => {
     console.error("Free tutor AI:", e.message);
     askCounts.set(req.ip, used);
     capUsed--;
-    res.status(502).json({ error: "Both AI engines are temporarily unavailable. Please try again." });
+    res.status(502).json({ error: e.message.includes("not configured") ? e.message : "The AI provider could not complete this request. Check the server API key, model access and billing, then try again." });
   }
 });
 

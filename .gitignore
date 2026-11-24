@@ -4,3 +4,6 @@ payments.json
 payments.json.tmp
 .DS_Store
 npm-debug.log*
+
+accounts.json
+accounts.json.tmp
